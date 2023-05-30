@@ -84,25 +84,20 @@ mapview(laddst_anslut_kom, zcol = "sum_anslut_kom", col.regions = greens(laddst_
 # tmap_save(tm = utskrift, 
 #           filename = paste0(output_mapp, "laddstolpar_kommun.png"))
 
-
+#====================punktlagret med laddstationer===============================
 
 #ta bort parenteser
 
 laddst_sv_df$Position <- gsub("[()]", "", as.character(laddst_sv_df$Position))
 
-#splitta kolumnen position
+laddstationer_punkt <- laddst_sv_df %>%  separate_wider_delim(Position, ",", names = c("lat", "lon")) #WGS84 Decimal (lat, lon) 
 
-laddstolpar <- laddst_sv_df %>% separate_wider_delim(Position, ",", names = c("lat", "lon")) #WGS84 Decimal (lat, lon)
-
-laddstolpar_sf = st_as_sf(laddstolpar, coords = c("lon", "lat"), 
+laddstationer_punkt <- st_as_sf(laddstationer_punkt, coords = c("lon", "lat"), 
                  crs = 4326, agr = "constant")
                                               #gör om till SWEREF99TM?
+#mapview(laddstationer_punkt)
 
-# Byt namn på variabler
-# head(laddstolpar_sf)
-# glimpse(laddstolpar_sf)
-
-laddstolpar_rename <- laddstolpar_sf %>% 
+laddstationer_punkt <- laddstationer_punkt %>% 
   rename(
     namn = name,
     gata = Street,
@@ -122,31 +117,25 @@ laddstolpar_rename <- laddstolpar_sf %>%
     skapad = Created,
     uppdaterad = Updated,
     station_status = Station_status,
-  )
+  ) 
 
-# summary(laddstolpar_rename$n_ladd_punkt)
-
-#Sparar endast nödvändiga variabler
-laddstolpar <- laddstolpar_rename %>% 
-  select(id, namn, gata, gatnr, postnr, ort, kom_kod, lan, lan_kod, 
+laddstationer_punkt <- laddstationer_punkt %>% select(id, namn, gata, gatnr, postnr, ort, kom_kod, lan, lan_kod, 
          kommun, lages_bskrvng, agare, operator, n_ladd_punkt, kommentar, 
-         kontakt, skapad, uppdaterad, station_status)
+         kontakt, skapad, uppdaterad)
 
 # Filtrerar på Dalarna, länskod = 20
-laddstolpar <- laddstolpar %>% filter(lan_kod == '20')
+laddstationer_punkt <- laddstationer_punkt %>% filter(lan_kod == '20')
 
-#plot(laddstolpar)
+pal <-  mapviewPalette("mapviewSpectralColors")
 
-mapview(laddstolpar, zcol = "n_ladd_punkt", legend = TRUE)
+mapview(laddstationer_punkt, zcol = "n_ladd_punkt", legend = FALSE, col.regions = pal(15))
 
-# sum_laddstolpar <- sum(laddstolpar$n_ladd_punkt)
-# sum_laddstolpar
+mapview(laddst_anslut_kom, zcol = "sum_anslut_kom", col.regions = greens(laddst_anslut_kom$sum_anslut_kom), at = seq(0, 150, 50))+
+  mapview(laddstationer_punkt, zcol = "n_ladd_punkt", legend = FALSE, col.regions = pal(15))
 
-sum_laddstolpe_kom <- laddstolpar %>% 
-  group_by(kom_kod, kommun) %>% 
-  summarise(summa_laddstolpar_kom = sum(n_ladd_punkt))
+#==========Klart================
 
-#rm(sum_laddstolpe_kom_komkod, sum_laddstolpe_kommun,meuse)
+
 
   #Skapa diagram
 # laddstolpar_diagram <- sum_laddstolpe_kom %>% 
@@ -183,8 +172,7 @@ ggplot(sum_laddstolpe_kom,
 #   mapview(europe_shape, legend = FALSE, alpha.regions = 0) +
 #   mapview(cities, legend = FALSE, cex = "pop")
 
-mapview(laddstolpar_kommun, zcol = "sum_laddstolpar_kom")+
-  mapview(laddstolpar, zcol = "n_ladd_punkt", legend = TRUE)
+
 
 #Ett försök med leaflet från file:///G:/skript/gis/dalarna.html
 
