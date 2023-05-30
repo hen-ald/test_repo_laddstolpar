@@ -23,7 +23,7 @@ kommuner_sv <- st_read(sokvag_kommuner_sv)
 
 #####Här laddas punktlagret med laddstolpar
 
-laddst_sv <- GET("https://nobil.no/api/server/datadump.php?apikey=2b9e9c013e44cd573e8f4b2db6813ad1&countrycode=SWE&fromdate=2012-06-02&format=json&file=false")
+laddst_sv <- GET("lägg api-nyckel i keyring")
 laddst_sv_resp <- fromJSON(content(laddst_sv, as = "text"), flatten = FALSE)
 laddst_sv_df <- laddst_sv_resp$chargerstations$csmd
 
