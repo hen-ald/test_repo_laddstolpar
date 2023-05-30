@@ -12,10 +12,8 @@ source("G:/skript/func/func_text.R", encoding = "utf-8", echo = FALSE)
 
 mapp_scbadmgranser <- "G:/Samhällsanalys/GIS/Grundkartor/Adm gränser med kustgränser/"
 filnamn_kommuner <- "Kommungränser_SCB_07.shp"
-#filnamn_lan <- "Länsgränser_SCB_07.shp"
 
 sokvag_kommuner_sv <- paste0(mapp_scbadmgranser, filnamn_kommuner)
-#sokvag_lan_sv <- paste0(mapp_scbadmgranser, filnamn_lan)
 output_mapp = "G:/Skript/projekt/gis/laddstolpar/utdata/" 
 
 # ==========================================================================================================
