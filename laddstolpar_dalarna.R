@@ -21,6 +21,12 @@ output_mapp = "G:/Skript/projekt/gis/laddstolpar/utdata/"
 kommuner_sv <- st_read(sokvag_kommuner_sv)
 lan_sv <- st_read(sokvag_lan_sv)
 
+#####Här laddas punktlagret med laddstolpar
+
+laddst_sv <- GET("https://nobil.no/api/server/datadump.php?apikey=2b9e9c013e44cd573e8f4b2db6813ad1&countrycode=SWE&fromdate=2012-06-02&format=json&file=false")
+laddst_sv_resp <- fromJSON(content(laddst_sv, as = "text"), flatten = FALSE)
+laddst_sv_df <- laddst_sv_resp$chargerstations$csmd
+
 # ====================================aggregera anslutningspunkter till kommuner ==============================================
 
 laddstolpar_choropleth <- laddst_sv_df %>% #byter namn på variabler 
@@ -82,11 +88,7 @@ utskrift <- tm_shape(laddstolpar_kommun, projection = 3006) +
 tmap_save(tm = utskrift, 
           filename = paste0(output_mapp, "laddstolpar_kommun.png"))
 
-#####Här laddas punktlagret med laddstolpar
 
-laddst_sv <- GET("https://nobil.no/api/server/datadump.php?apikey=2b9e9c013e44cd573e8f4b2db6813ad1&countrycode=SWE&fromdate=2012-06-02&format=json&file=false")
-laddst_sv_resp <- fromJSON(content(laddst_sv, as = "text"), flatten = FALSE)
-laddst_sv_df <- laddst_sv_resp$chargerstations$csmd
 
 #ta bort parenteser
 
