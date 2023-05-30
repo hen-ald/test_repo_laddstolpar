@@ -6,6 +6,7 @@ library(tidyverse)
 library(sf)
 library(tmap)
 library(dplyr)
+library(leaflet)
 
 source("G:/skript/func/func_diagramfunktioner.R", encoding = "utf-8", echo = FALSE)
 source("G:/skript/func/func_text.R", encoding = "utf-8", echo = FALSE)
@@ -19,7 +20,6 @@ output_mapp = "G:/Skript/projekt/gis/laddstolpar/utdata/"
 # ==========================================================================================================
 
 kommuner_sv <- st_read(sokvag_kommuner_sv)
-lan_sv <- st_read(sokvag_lan_sv)
 
 #####Här laddas punktlagret med laddstolpar
 
@@ -29,7 +29,7 @@ laddst_sv_df <- laddst_sv_resp$chargerstations$csmd
 
 # ====================================aggregera anslutningspunkter till kommuner ==============================================
 
-laddstolpar_choropleth <- laddst_sv_df %>% #byter namn på variabler 
+laddstationer <- laddst_sv_df %>% #byter namn på variabler 
   rename(
     namn = name,
     gata = Street,
@@ -52,41 +52,37 @@ laddstolpar_choropleth <- laddst_sv_df %>% #byter namn på variabler
   )
 
 #Sparar endast nödvändiga variabler
-laddstolpar_choropleth <- laddstolpar_choropleth %>% 
+laddstationer_anslut <- laddstationer %>% 
   select(id, namn, gata, gatnr, postnr, ort, kom_kod, lan, lan_kod, 
          kommun, lages_bskrvng, agare, operator, n_ladd_punkt, kommentar, 
-         kontakt, skapad, uppdaterad, station_status)
-
-# Filtrerar på Dalarna länskod = 20
-laddstolpar_choropleth <- laddstolpar_choropleth %>% filter(lan_kod == '20')
-
-laddstolpar_choropleth <- laddstolpar_choropleth %>% 
-  group_by(kom_kod, kommun) %>% 
-  summarise(sum_laddstolpar_kom = sum(n_ladd_punkt))
+         kontakt, skapad, uppdaterad, station_status) %>% filter(lan_kod == '20') %>% 
+  group_by(kom_kod, kommun) %>%
+  summarise(sum_anslut_kom = sum(n_ladd_punkt))
 
 # lägg ihop kommunpolygonerna med laddstolpar per kommun-statistiken
-laddstolpar_kommun <- left_join(kommuner_sv, laddstolpar_choropleth, by = c("KNKOD" = "kom_kod"))
+laddst_anslut_kom <- left_join(kommuner_sv, laddstationer_anslut, by = c("KNKOD" = "kom_kod")) %>% 
+  filter(Lanskod_tx == 20)
 
-laddstolpar_kommun <- laddstolpar_kommun %>% filter(Lanskod_tx == '20')
+greens = colorRampPalette(c('darkgreen', 'green'))
 
-mapview(laddstolpar_kommun, zcol = "sum_laddstolpar_kom")
+mapview(laddst_anslut_kom, zcol = "sum_anslut_kom", col.regions = greens(laddst_anslut_kom$sum_anslut_kom), at = seq(0, 150, 50))
 
-#Karta för utskrift
-utskrift <- tm_shape(laddstolpar_kommun, projection = 3006) +
-  tm_polygons(col = "sum_laddstolpar_kom", 
-              palette = diagramfarger("bla_sex")) +
-  tm_layout(main.title = paste0("Laddstolpar per kommun "),
-            main.title.size = 2,
-            main.title.position = "center",
-            legend.outside = FALSE,
-            legend.position = c(0.02,0.02),              #c("left", "top"),
-            #legend.title = 0.8,
-            #legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            frame = FALSE)
-
-tmap_save(tm = utskrift, 
-          filename = paste0(output_mapp, "laddstolpar_kommun.png"))
+# #Karta för utskrift
+# utskrift <- tm_shape(laddstolpar_kommun, projection = 3006) +
+#   tm_polygons(col = "sum_laddstolpar_kom", 
+#               palette = diagramfarger("bla_sex")) +
+#   tm_layout(main.title = paste0("Laddstolpar per kommun "),
+#             main.title.size = 2,
+#             main.title.position = "center",
+#             legend.outside = FALSE,
+#             legend.position = c(0.02,0.02),              #c("left", "top"),
+#             #legend.title = 0.8,
+#             #legend.title.size = 0.8,
+#             legend.text.size = 0.8,
+#             frame = FALSE)
+# 
+# tmap_save(tm = utskrift, 
+#           filename = paste0(output_mapp, "laddstolpar_kommun.png"))
 
 
 
