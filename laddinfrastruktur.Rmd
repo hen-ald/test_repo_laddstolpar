@@ -8,10 +8,11 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+Följande är en visualisering av publika laddstationer i Dalarna. Dokumentet är levande och kommer att byggas på efterhand som kunskap ökar och data förändras. Data på laddstationer laddas ner från Nobil via en API. En API är kortfattat en länk mellan två maskiner, vilket möjliggör automatisering av kartan. 
 
-Följande är en visualisering av publika laddstationer i Dalarna. Definition av publik laddning – "en laddstation som står placerad där vem som helst kan ladda bilen, till exempel utmed landsvägar, i parkeringshus, vid köpcentrum, vid infartsparkeringar eller resecentrum." (Energimyndigheten, https://www.energimyndigheten.se/klimat--miljo/transporter/energieffektiva-och-fossilfria-fordon-och-transporter/laddinfrastruktur/).
+Energimyndigheten definierar publik laddning som "en laddstation som står placerad där vem som helst kan ladda bilen, till exempel utmed landsvägar, i parkeringshus, vid köpcentrum, vid infartsparkeringar eller resecentrum." (https://www.energimyndigheten.se/klimat--miljo/transporter/energieffektiva-och-fossilfria-fordon-och-transporter/laddinfrastruktur/).
 
-Laddstationer har olika mängd anslutningspunkter. Diagrammet nedan visar summan av anslutningspunkter per kommun.
+Laddstationer och anslutningspunkter är nyckelord; Laddstationer har olika mängd anslutningspunkter, med andra ord en station kan ha flera laddstolpar/anslutningspunkter. Diagrammet nedan visar summan av anslutningspunkter per kommun.
 
 
 ```{r, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
@@ -155,7 +156,7 @@ ggplot(laddstationer_anslut,
 ```
 
 ## Laddstationer och anslutningspunkter.
-I nuläget kan två lager kan tändas/släckas. Det primära lagret är punkter vilka visualiserar placering av laddstationer. När muspekaren vilar på en punkt visas antal anslutningspunkter på aktuell station. Det andra lagret är ett polygonlager med antalet anslutningspunkter aggregerat till kommunnivå, när muspekaren vilar på en kommun visas summan av anslutningspunkter på samtliga stationer i aktuell kommun. Vänsterklick på ett objekt visar all tillgänglig information.
+Kartan nedan är ett utkast på en interaktiv karta där lager kan tändas och släckas. Det primära kart-lagret är punkter på laddstationer. Det andra kart-lagret är polygoner med antalet anslutningspunkter aggregerat till kommunnivå. Ett vänsterklick på ett objekt visar all tillgänglig information i den tabell som ligger till grund för aktuellt lager. När muspekaren vilar på ett objekt visas antal anslutningspunkter på aktuell station eller summan av anslutningspunkter på samtliga stationer i aktuell kommun.
 
 ```{r laddst_sv_df, echo = FALSE, message=FALSE, warning=FALSE}
 mapview(laddst_anslut_kom, zcol = "sum_anslut_kom", col.regions = greens(laddst_anslut_kom$sum_anslut_kom), at = seq(0, 150, 50))+
